@@ -1,4 +1,46 @@
 services:
+
+  # --------------------------------
+  # Service Registry - Eureka
+  # --------------------------------
+  service-registry:
+    build:
+      context: ./service-registry
+      dockerfile: Dockerfile
+    container_name: apextech-service-registry
+    ports:
+      - "8761:8761"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: 8761
+    restart: unless-stopped
+    networks:
+      - backend
+
+  # --------------------------------
+  # API Gateway
+  # --------------------------------
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: apextech-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+
+      SERVICES_TRANSFER_URL: http://transfer-service:8080
+      SERVICES_TELEGRAM_URL: http://telegram-bot-service:8080
+
+    depends_on:
+      - service-registry
+      - transfer-service
+      - telegram-bot-service
+    restart: unless-stopped
+    networks:
+      - backend
   telegram-bot-service:
     build: ./spring-telegrambot-service
     container_name: telegram-bot-service
