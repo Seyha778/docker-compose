@@ -1,3 +1,4 @@
-docker compose config
-docker compose build
-docker compose up -d
+**Run All Service:**
+- docker compose config
+- docker compose build
+- docker compose up -d
